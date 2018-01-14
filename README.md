@@ -1,5 +1,8 @@
 # moonfolio
-awesome terminal crypto portfolio, work in progres....
+awesome terminal crypto portfolio, work in progress....
+
+# beta 0.0001
+![alt text](https://github.com/tebben/moonfolio/raw/master/files/screenshots/beta01.jpg)
 
 ## ToDo
 - get cryptocompare API working instead of wonky CoinMarketCap
