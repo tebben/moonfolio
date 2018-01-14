@@ -9,6 +9,7 @@ import (
 	"github.com/jroimartin/gocui"
 	"github.com/tebben/moonfolio/cmc"
 	"github.com/tebben/moonfolio/configuration"
+	"github.com/tebben/moonfolio/runner"
 	"github.com/tebben/moonfolio/ui"
 )
 
@@ -35,7 +36,7 @@ var (
 func main() {
 	flag.Parse()
 	loadConfig()
-
+	go runner.Start(&conf)
 	createAndStart()
 }
 

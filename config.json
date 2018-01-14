@@ -5,5 +5,11 @@
         "enabled": false,
         "host": "0.0.0.0",
         "port": 8080
+    },
+    "gui": {
+        "showHourPercentage": true,
+        "showDayPercentage": true,
+        "showWeekPercentage": true,
+        "outlineNumbers": false
     }
 }
