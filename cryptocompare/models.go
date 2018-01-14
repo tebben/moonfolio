@@ -16,6 +16,7 @@ type Coin struct {
 	URL       string `json:"Url"`
 	ImageURL  string `json:"ImageUrl"`
 	Name      string `json:"Name"`
+	Symbol    string `json:"Symbol"`
 	CoinName  string `json:"CoinName"`
 	FullName  string `json:"FullName"`
 	Algorithm string `json:"Algorithm"`
