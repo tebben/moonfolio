@@ -7,52 +7,41 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type TestParam string
-
-func (t *TestParam) ToString() string {
-	return fmt.Sprintf("test=%s", *t)
-}
-
-type TestOptionals struct {
-	ExtraParams   *ExtraParams
-	Exchange      *Exchange
-	Sign          *Sign
-	TryConversion *TryConversion
-}
-
-func (g *TestOptionals) GetParameters() []Parameter {
-	return []Parameter{g.Exchange, g.ExtraParams, g.Sign, g.TryConversion}
-}
-
-func TestBuildUri(t *testing.T) {
-	endpoint := "https://coins?user=barry"
-	testParam := TestParam("test")
-	a := &testParam
-	uri := buildURI(endpoint, nil, a)
-
-	assert.Equal(t, "https://coins?user=barry&test=test", uri)
-}
-
-func TestBuildUriWithOptionals(t *testing.T) {
+func TestBuildUriWithFilledAndDefaultAndEmptyValues(t *testing.T) {
+	//prepare
 	endpoint := "https://coins"
-	testParam := TestParam("test")
+	exchange := ParamExchange("Kraken")
+	extraParams := ParamExtraparams("")
+	sign := ParamSign(true)
+	conversion := ParamTryConversion(false)
 
-	exchange := Exchange("Kraken")
-	sign := Sign(true)
-	optionals := TestOptionals{Exchange: &exchange, Sign: &sign}
+	// act
+	uri := buildURI(endpoint, exchange, extraParams, sign, conversion)
 
-	uri := buildURI(endpoint, &optionals, *testParam)
-
-	assert.Equal(t, "https://coins?test=test&e=Kraken&sign=true", uri)
+	// assert
+	assert.Equal(t, "https://coins?e=Kraken&sign=true", uri)
 }
 
 func TestAppendParameter(t *testing.T) {
-	uri := "https://coins"
-	testParam1 := TestParam("test")
-	testParam2 := TestParam("ikel")
+	// prepare
+	endpoint := "https://coins"
+	toAppend := ParamExchange("Kraken")
 
-	uri = appendParameter(uri, &testParam1)
-	uri = appendParameter(uri, &testParam2)
+	// act
+	uri := appendParameter(endpoint, toAppend)
 
-	assert.Equal(t, "https://coins?test=test&test=ikel", uri)
+	// assert
+	assert.Equal(t, fmt.Sprintf("https://coins?%s=%s", toAppend.getQueryName(), toAppend.getValueString()), uri)
+}
+
+func TestAppendParameterContainingQuestionMark(t *testing.T) {
+	// prepare
+	endpoint := "https://coins?s=1"
+	toAppend := ParamExchange("Kraken")
+
+	// act
+	uri := appendParameter(endpoint, toAppend)
+
+	// assert
+	assert.Equal(t, fmt.Sprintf("https://coins?s=1&%s=%s", toAppend.getQueryName(), toAppend.getValueString()), uri)
 }

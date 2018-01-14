@@ -24,7 +24,7 @@ func TestGetCoinList(t *testing.T) {
 }
 
 func TestGetPrice(t *testing.T) {
-	price, err := GetPrice(CoinName, []string{"USD", "EUR"}, nil)
+	price, err := GetPrice(CoinName, []string{"USD", "EUR"}, "", "", false, false)
 
 	assert.Nil(t, err)
 	assert.NotNil(t, price)

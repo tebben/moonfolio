@@ -26,7 +26,7 @@ type Coin struct {
 // Price contains price information of a coin
 type Price map[string]float64
 
-// PriceParse used to parse the prices into, ,need because of the %@#^&% generic fields. GAWT
+// priceParse used to parse the prices into, ,need because of the %@#^&% generic fields. GAWT
 type priceParse map[string]interface{}
 
 func (p *priceParse) GetPrices() Price {

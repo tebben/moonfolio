@@ -37,9 +37,9 @@ func GetCoinList() (*CoinList, error) {
 }
 
 // GetPrice returns the latest price for a list of one or more currencies.
-func GetPrice(fsym string, tsyms []string, optionals *GetPriceOptionals) (Price, error) {
+func GetPrice(fsym ParamFsym, tsyms ParamTsyms, exchange ParamExchange, extraParams ParamExtraparams, sign ParamSign, tryConversion ParamTryConversion) (Price, error) {
 	price := priceParse{}
-	err := getJSON(buildURI(endpointPrice, optionals, &Fsym{fsym}, &Tsyms{tsyms}), &price)
+	err := getJSON(buildURI(endpointPrice, fsym, tsyms, exchange, extraParams, sign, tryConversion), &price)
 	if err != nil {
 		return nil, err
 	}

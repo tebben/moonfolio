@@ -5,61 +5,77 @@ import (
 	"strings"
 )
 
-type OptionalParameters interface {
-	GetParameters() []Parameter
-}
-
 type Parameter interface {
-	ToString() string
+	getQueryName() string
+	getValueString() string
 }
 
-type Fsym string
+type ParamFsym string
 
-func (p *Fsym) ToString() string {
-	return fmt.Sprintf("fsym=%s", *p)
+func (p ParamFsym) getQueryName() string {
+	return "fsym"
 }
 
-type Fsyms []string
-
-func (p *Fsyms) ToString() string {
-	return fmt.Sprintf("fsyms=%s", combineMultiParam(*p))
+func (p ParamFsym) getValueString() string {
+	return fmt.Sprintf("%v", p)
 }
 
-type Tsym string
+type ParamTsyms []string
 
-func (p *Tsym) ToString() string {
-	return fmt.Sprintf("tsym=%s", *p)
+func (p ParamTsyms) getQueryName() string {
+	return "tsyms"
 }
 
-type Tsyms []string
-
-func (p *Tsyms) ToString() string {
-	return fmt.Sprintf("tsyms=%s", combineMultiParam(*p))
+func (p ParamTsyms) getValueString() string {
+	return fmt.Sprintf("%v", combineMultiParam(p))
 }
 
-type ExtraParams string
+type ParamExchange string
 
-func (p *ExtraParams) ToString() string {
-	return fmt.Sprintf("extraParams=%s", *p)
+func (p ParamExchange) getQueryName() string {
+	return "e"
 }
 
-type Exchange string
-
-func (p *Exchange) ToString() string {
-	return fmt.Sprintf("e=%s", *p)
+func (p ParamExchange) getValueString() string {
+	return fmt.Sprintf("%v", p)
 }
 
-type Sign bool
+type ParamExtraparams string
 
-func (p *Sign) ToString() string {
-	return fmt.Sprintf("sign=%v", *p)
+func (p ParamExtraparams) getQueryName() string {
+	return "extraParams"
 }
 
-// TryConversion If set to false, it will try to get values without using any conversion at all
-type TryConversion bool
+func (p ParamExtraparams) getValueString() string {
+	return fmt.Sprintf("%v", p)
+}
 
-func (p *TryConversion) ToString() string {
-	return fmt.Sprintf("tryConversion=%v", *p)
+type ParamSign bool
+
+func (p ParamSign) getQueryName() string {
+	return "sign"
+}
+
+func (p ParamSign) getValueString() string {
+	if p == false {
+		return ""
+	}
+
+	return fmt.Sprintf("%v", p)
+}
+
+type ParamTryConversion bool
+
+func (p ParamTryConversion) getQueryName() string {
+	return "tryConversion"
+}
+
+func (p ParamTryConversion) getValueString() string {
+	if p == false {
+		return ""
+	}
+
+	return fmt.Sprintf("%v", p)
 }
 
 func combineMultiParam(params []string) string {
@@ -68,20 +84,4 @@ func combineMultiParam(params []string) string {
 	}
 
 	return strings.Join(params, ",")
-}
-
-// GetPriceOptionals can be supplied to GetPrice to set some optional parameters
-//  e: Name of exchange. Default: CCCAGG
-//  extraParams:
-//  sign: If set to true, the server will sign the requests.
-//  tryConversion: If set to false, it will try to get values without using any conversion at all
-type GetPriceOptionals struct {
-	ExtraParams   *ExtraParams
-	Exchange      *Exchange
-	Sign          *Sign
-	TryConversion *TryConversion
-}
-
-func (g *GetPriceOptionals) GetParameters() []Parameter {
-	return []Parameter{g.Exchange, g.ExtraParams, g.Sign, g.TryConversion}
 }
