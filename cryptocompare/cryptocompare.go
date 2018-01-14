@@ -47,6 +47,41 @@ func GetPrice(fsym ParamFsym, tsyms ParamTsyms, exchange ParamExchange, extraPar
 	return price.GetPrices(), nil
 }
 
+// GetHistoMinute Get open, high, low, close, volumefrom and volumeto from the each minute historical data.
+// This data is only stored for 7 days, if you need more,use the hourly or daily path.
+// It uses BTC conversion if data is not available because the coin is not trading in the specified currency
+// aggregate	default = 1
+// limit		default = 1440, max = 2000
+func GetHistoMinute(fsym ParamFsym, tsym ParamTsym, exchange ParamExchange, extraParams ParamExtraparams, sign ParamSign, tryConversion ParamTryConversion, aggregate ParamAggregate, limit ParamLimit) (*Histo, error) {
+	return getHisto(endpointHistoMinute, fsym, tsym, exchange, extraParams, sign, tryConversion, aggregate, limit)
+}
+
+// GetHistoHour Get open, high, low, close, volumefrom and volumeto from the each hour historical data.
+// It uses BTC conversion if data is not available because the coin is not trading in the specified currency.
+// aggregate	default = 1
+// limit		default = 168, max = 2000
+func GetHistoHour(fsym ParamFsym, tsym ParamTsym, exchange ParamExchange, extraParams ParamExtraparams, sign ParamSign, tryConversion ParamTryConversion, aggregate ParamAggregate, limit ParamLimit) (*Histo, error) {
+	return getHisto(endpointHistoHour, fsym, tsym, exchange, extraParams, sign, tryConversion, aggregate, limit)
+}
+
+// GetHistoDay Get open, high, low, close, volumefrom and volumeto from the each day historical data.
+// It uses BTC conversion if data is not available because the coin is not trading in the specified currency.
+// aggregate	default = 1
+// limit		default = 30, max = 2000
+func GetHistoDay(fsym ParamFsym, tsym ParamTsym, exchange ParamExchange, extraParams ParamExtraparams, sign ParamSign, tryConversion ParamTryConversion, aggregate ParamAggregate, limit ParamLimit) (*Histo, error) {
+	return getHisto(endpointHistoDay, fsym, tsym, exchange, extraParams, sign, tryConversion, aggregate, limit)
+}
+
+func getHisto(endpoint string, fsym ParamFsym, tsym ParamTsym, exchange ParamExchange, extraParams ParamExtraparams, sign ParamSign, tryConversion ParamTryConversion, aggregate ParamAggregate, limit ParamLimit) (*Histo, error) {
+	histo := &Histo{}
+	err := getJSON(buildURI(endpoint, fsym, tsym, exchange, extraParams, sign, tryConversion, aggregate, limit), histo)
+	if err != nil {
+		return nil, err
+	}
+
+	return histo, nil
+}
+
 func getJSON(url string, target interface{}) error {
 	r, err := client.Get(url)
 	if err != nil {

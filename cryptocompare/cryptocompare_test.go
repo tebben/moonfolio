@@ -37,3 +37,39 @@ func TestGetPrice(t *testing.T) {
 		assert.Fail(t, "Expected USD value returned for EUR")
 	}
 }
+
+func TestGetHistoMinute(t *testing.T) {
+	histo, err := GetHistoMinute(CoinName, "USD", "", "", false, false, 2, 10)
+
+	assert.Nil(t, err)
+	assert.NotNil(t, histo)
+	assert.Len(t, histo.Data, 11, "GetHistoMinute should have returned 10 HistoData objects")
+
+	// test if time difference is 2 minutes
+	diff := int(histo.Data[1].Time - histo.Data[0].Time)
+	assert.Equal(t, 120, diff)
+}
+
+func TestGetHistoHour(t *testing.T) {
+	histo, err := GetHistoHour(CoinName, "USD", "", "", false, false, 5, 5)
+
+	assert.Nil(t, err)
+	assert.NotNil(t, histo)
+	assert.Len(t, histo.Data, 6, "GetHistoHour should have returned 6 HistoData objects")
+
+	// test if time difference is 5 hours
+	diff := int(histo.Data[1].Time - histo.Data[0].Time)
+	assert.Equal(t, 18000, diff)
+}
+
+func TestGetHistoDay(t *testing.T) {
+	histo, err := GetHistoDay(CoinName, "USD", "", "", false, false, 2, 4)
+
+	assert.Nil(t, err)
+	assert.NotNil(t, histo)
+	assert.Len(t, histo.Data, 5, "GetHistoDay should have returned 5 HistoData objects")
+
+	// test if time difference is 2 days
+	diff := int(histo.Data[1].Time - histo.Data[0].Time)
+	assert.Equal(t, 172800, diff)
+}
