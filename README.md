@@ -11,6 +11,7 @@ awesome terminal crypto portfolio, work in progress....
 - configuration window
 - storing transactions in database (boltdb?)
 - syncing/storing transactions somewhere on the interwebs
+- transaction HTTP endpoint Get/put/patch/delete
 - detailed coin information window (charts!)
 - navigation with remote control/IR receiver when running on RPI
 - animations?

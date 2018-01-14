@@ -1,18 +1,20 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"strconv"
 	"time"
 
 	"github.com/jroimartin/gocui"
 	"github.com/tebben/moonfolio/cmc"
+	"github.com/tebben/moonfolio/configuration"
 	"github.com/tebben/moonfolio/ui"
 )
 
 var transactions = map[string]float64{
 	"bitcoin":     0.0842,
-	"vsync-vsx":   10973,
+	"vsync-vsx":   11071,
 	"hush":        101,
 	"ripple":      49.95,
 	"cardano":     132.87,
@@ -26,10 +28,28 @@ var transactions = map[string]float64{
 
 var (
 	updateTicker *time.Ticker
+	conf         configuration.Config
+	cfgFlag      = flag.String("config", "config.json", "path of the config file")
 )
 
 func main() {
+	flag.Parse()
+	loadConfig()
+
 	createAndStart()
+}
+
+func loadConfig() {
+	cfg := *cfgFlag
+
+	var err error
+	conf, err = configuration.GetConfig(cfg)
+	if err != nil {
+		log.Fatal("config read error: ", err)
+		return
+	}
+
+	configuration.SetEnvironmentVariables(&conf)
 }
 
 func createAndStart() {
