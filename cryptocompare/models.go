@@ -40,6 +40,25 @@ func (p *priceParse) GetPrices() Price {
 	return price
 }
 
+// priceParse used to parse the prices into, ,need because of the %@#^&% generic fields. GAWT
+type priceParseMulti map[string]map[string]interface{}
+
+func (p *priceParseMulti) GetPrices() map[string]Price {
+	prices := map[string]Price{}
+
+	for k, v := range *p {
+		price := Price{}
+
+		for k2, v2 := range v {
+			price[k2] = v2.(float64)
+		}
+
+		prices[k] = price
+	}
+
+	return prices
+}
+
 // Histo response from endpoints HistoMinute, HistoHour, HistoDay
 type Histo struct {
 	Response          string         `json:"Response"`

@@ -38,6 +38,34 @@ func TestGetPrice(t *testing.T) {
 	}
 }
 
+func TestGetPriceMulti(t *testing.T) {
+	prices, err := GetPriceMulti([]string{"BTC", "ETH"}, []string{"USD", "EUR"}, "", "", false, false)
+
+	assert.Nil(t, err)
+	assert.NotNil(t, prices)
+	assert.Len(t, prices, 2)
+
+	if btc, ok := prices["BTC"]; !ok {
+		assert.Fail(t, "Expected BTC value")
+		if _, ok := btc["USD"]; !ok {
+			assert.Fail(t, "Expected USD value")
+		}
+		if _, ok := btc["EUR"]; !ok {
+			assert.Fail(t, "Expected EUR value")
+		}
+	}
+
+	if btc, ok := prices["ETH"]; !ok {
+		assert.Fail(t, "Expected BTC value")
+		if _, ok := btc["USD"]; !ok {
+			assert.Fail(t, "Expected USD value")
+		}
+		if _, ok := btc["EUR"]; !ok {
+			assert.Fail(t, "Expected EUR value")
+		}
+	}
+}
+
 func TestGetHistoMinute(t *testing.T) {
 	histo, err := GetHistoMinute(CoinName, "USD", "", "", false, false, 2, 10)
 

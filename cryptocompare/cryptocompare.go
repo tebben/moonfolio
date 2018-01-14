@@ -47,6 +47,17 @@ func GetPrice(fsym ParamFsym, tsyms ParamTsyms, exchange ParamExchange, extraPar
 	return price.GetPrices(), nil
 }
 
+// GetPriceMulti get a matrix of currency prices.
+func GetPriceMulti(fsyms ParamFsyms, tsyms ParamTsyms, exchange ParamExchange, extraParams ParamExtraparams, sign ParamSign, tryConversion ParamTryConversion) (map[string]Price, error) {
+	prices := priceParseMulti{}
+	err := getJSON(buildURI(endpointPriceMulti, fsyms, tsyms, exchange, extraParams, sign, tryConversion), &prices)
+	if err != nil {
+		return nil, err
+	}
+
+	return prices.GetPrices(), nil
+}
+
 // GetHistoMinute Get open, high, low, close, volumefrom and volumeto from the each minute historical data.
 // This data is only stored for 7 days, if you need more,use the hourly or daily path.
 // It uses BTC conversion if data is not available because the coin is not trading in the specified currency
