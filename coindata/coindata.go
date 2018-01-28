@@ -9,6 +9,10 @@ import (
 	"github.com/tebben/moonfolio/transactions"
 )
 
+const (
+	Empty = -99999.99999
+)
+
 // Histo contains historical price data
 type Histo struct {
 	Time     int64
@@ -148,7 +152,7 @@ func (c *CoinData) GetBalance() float64 {
 }
 
 func (c *CoinData) GetChange1H() float64 {
-	change1H := 0.0
+	change1H := Empty
 
 	c.lock.Lock()
 	if c.HistoMinute != nil && len(c.HistoMinute) > 0 {
@@ -178,7 +182,7 @@ func (c *CoinData) GetChange1H() float64 {
 }
 
 func (c *CoinData) GetChange1D() float64 {
-	change1D := 0.0
+	change1D := Empty
 
 	c.lock.Lock()
 	if c.HistoDay != nil && len(c.HistoDay) > 0 {
@@ -191,7 +195,7 @@ func (c *CoinData) GetChange1D() float64 {
 }
 
 func (c *CoinData) GetChange7D() float64 {
-	change7D := 0.0
+	change7D := Empty
 
 	c.lock.Lock()
 	if c.HistoDay != nil && len(c.HistoDay) > 0 {

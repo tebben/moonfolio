@@ -3,6 +3,7 @@ package ui
 import (
 	"fmt"
 	"sort"
+	"strconv"
 
 	"github.com/tebben/moonfolio/coindata"
 
@@ -41,9 +42,9 @@ func createHeader() string {
 	data := []columnText{
 		columnText{Length: 25, Text: "NAME", Styling: []string{textColor, BoldStart}},
 		columnText{Length: 14, Text: "PRICE", Styling: []string{textColor, BoldStart}},
-		columnText{Length: 10, Text: fmt.Sprintf("1H%s", "%"), Styling: []string{textColor, BoldStart}},
-		columnText{Length: 10, Text: fmt.Sprintf("1D%s", "%"), Styling: []string{textColor, BoldStart}},
-		columnText{Length: 10, Text: fmt.Sprintf("7D%s", "%"), Styling: []string{textColor, BoldStart}},
+		columnText{Length: 10, Text: fmt.Sprintf("1H %s", "%"), Styling: []string{textColor, BoldStart}},
+		columnText{Length: 10, Text: fmt.Sprintf("1D %s", "%"), Styling: []string{textColor, BoldStart}},
+		columnText{Length: 10, Text: fmt.Sprintf("7D %s", "%"), Styling: []string{textColor, BoldStart}},
 		columnText{Length: 13, Text: "AMOUNT", Styling: []string{textColor, BoldStart}},
 		columnText{Length: 13, Text: "BALANCE", Styling: []string{textColor, BoldStart}},
 	}
@@ -55,14 +56,27 @@ func createDataRow(h *coindata.CoinData) string {
 	data := []columnText{
 		columnText{Length: 25, Text: fmt.Sprintf("%s", h.Name), Styling: []string{ColorGray, BoldStart}},
 		columnText{Length: 14, Text: fmt.Sprintf("%s%v", "$", h.PriceUSD), Styling: []string{ColorGray, BoldStart}},
-		columnText{Length: 10, Text: fmt.Sprintf("%.2f%s", h.GetChange1H(), "%"), Styling: []string{getChangeColorStyle(h.GetChange1H()), BoldStart}},
-		columnText{Length: 10, Text: fmt.Sprintf("%.2f%s", h.GetChange1D(), "%"), Styling: []string{getChangeColorStyle(h.GetChange1D()), BoldStart}},
-		columnText{Length: 10, Text: fmt.Sprintf("%.2f%s", h.GetChange7D(), "%"), Styling: []string{getChangeColorStyle(h.GetChange7D()), BoldStart}},
-		columnText{Length: 13, Text: fmt.Sprintf("%v", h.GetCoinAmount()), Styling: []string{ColorGray, BoldStart}},
+		columnText{Length: 10, Text: fmt.Sprintf("%s", getChange(h.GetChange1H)), Styling: []string{getChangeColorStyle(h.GetChange1H()), BoldStart}},
+		columnText{Length: 10, Text: fmt.Sprintf("%s", getChange(h.GetChange1D)), Styling: []string{getChangeColorStyle(h.GetChange1D()), BoldStart}},
+		columnText{Length: 10, Text: fmt.Sprintf("%s", getChange(h.GetChange7D)), Styling: []string{getChangeColorStyle(h.GetChange7D()), BoldStart}},
+		columnText{Length: 13, Text: fmt.Sprintf("%v", floatToString(h.GetCoinAmount())), Styling: []string{ColorGray, BoldStart}},
 		columnText{Length: 13, Text: fmt.Sprintf("%s%.2f", "$", h.GetBalance()), Styling: []string{ColorGray, BoldStart}},
 	}
 
 	return createColumnString(data)
+}
+
+func getChange(f func() float64) string {
+	val := f()
+	if val == coindata.Empty {
+		return "-"
+	}
+
+	return fmt.Sprintf("%.2f%s", val, "%")
+}
+
+func floatToString(input float64) string {
+	return strconv.FormatFloat(input, 'f', 4, 64)
 }
 
 func createMainOverview(g *gocui.Gui, x0, y0, x1, y1 int) error {
@@ -76,6 +90,10 @@ func createMainOverview(g *gocui.Gui, x0, y0, x1, y1 int) error {
 }
 
 func getChangeColorStyle(change float64) string {
+	if change == coindata.Empty {
+		return ColorWhite
+	}
+
 	s := ColorGreen
 	if change < 0 {
 		s = ColorRed
