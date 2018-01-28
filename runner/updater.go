@@ -11,8 +11,10 @@ import (
 )
 
 var (
-	updateTicker    *time.Ticker
-	countdownTicker *time.Ticker
+	updateTicker        *time.Ticker
+	countdownTicker     *time.Ticker
+	lastHistoDayUpdate  *time.Time
+	lastHistoHourUpdate *time.Time
 )
 
 func startUpdater(updateMs int64) {
@@ -57,8 +59,13 @@ func stopCountdownTicker() {
 
 func update() {
 	updatePrice()
-	updateHisto()
+	go updateHistoDay()
+	go updateHistoHour()
 
+	updateUIHoldings()
+}
+
+func updateUIHoldings() {
 	// set data to ui
 	holdings := make(ui.Holdings, 0)
 	for k := range userCoins {
@@ -90,9 +97,38 @@ func updatePrice() {
 	}
 }
 
-func updateHisto() {
+func updateHistoDay() {
+	now := time.Now()
+	if lastHistoDayUpdate == nil || (lastHistoDayUpdate.Year() < now.Year() || lastHistoDayUpdate.Month() < now.Month() || lastHistoDayUpdate.Day() < now.Day()) {
+		for k := range userCoins {
+			histoDay, err := cryptocompare.GetHistoDay(cryptocompare.ParamFsym(userCoins[k].Symbol), "USD", "", "", false, false, 1, 7)
+			if err != nil {
+				// Todo: set error
+			}
 
+			userCoins[k].HistoDay = histoDay.Data
+			go updateUIHoldings()
+			time.Sleep(time.Millisecond * 500)
+		}
+
+		lastHistoDayUpdate = &now
+	}
 }
 
-// Every 00:00 gmt get price histo day to set 1 day and 7 d
-// every
+func updateHistoHour() {
+	now := time.Now()
+	if lastHistoHourUpdate == nil {
+		for k := range userCoins {
+			histoHour, err := cryptocompare.GetHistoHour(cryptocompare.ParamFsym(userCoins[k].Symbol), "USD", "", "", false, false, 1, 1)
+			if err != nil {
+				// Todo: set error
+			}
+
+			userCoins[k].HistoHour = histoHour.Data
+			go updateUIHoldings()
+			time.Sleep(time.Millisecond * 500)
+		}
+
+		lastHistoHourUpdate = &now
+	}
+}

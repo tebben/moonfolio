@@ -68,7 +68,7 @@ type Histo struct {
 	TimeFrom          int64          `json:"TimeFrom"`
 	FirstValueInArray bool           `json:"FirstValueInArray"`
 	ConversionType    ConversionType `json:"ConversionType"`
-	Data              []HistoData    `json:"Data"`
+	Data              []*HistoData   `json:"Data"`
 }
 
 // ConversionType something that is returned

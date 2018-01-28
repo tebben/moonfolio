@@ -70,7 +70,6 @@ func MainLayout(g *gocui.Gui) error {
 		return err
 	}
 
-	ReDraw()
 	return nil
 }
 

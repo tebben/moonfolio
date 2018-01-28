@@ -13,8 +13,8 @@ type CoinData struct {
 	Symbol       string
 	Rank         int
 	PriceUSD     float64
-	HistoHour    []*cryptocompare.Histo
-	HistoDay     []*cryptocompare.Histo
+	HistoHour    []*cryptocompare.HistoData
+	HistoDay     []*cryptocompare.HistoData
 	transactions []*transactions.Transaction
 	lock         sync.Mutex
 }
@@ -90,23 +90,37 @@ func (c *CoinData) GetBalance() float64 {
 	return coinAmount * c.PriceUSD
 }
 
-func (c *CoinData) GetChange1H() string {
+func (c *CoinData) GetChange1H() float64 {
 	c.lock.Lock()
 	c.lock.Unlock()
 
-	return ""
+	return 0
 }
 
-func (c *CoinData) GetChange1D() string {
+func (c *CoinData) GetChange1D() float64 {
+	change1D := 0.0
+
 	c.lock.Lock()
+	if c.HistoDay != nil && len(c.HistoDay) > 0 {
+		firstDay := c.HistoDay[len(c.HistoDay)-1]
+		median := (firstDay.High + firstDay.Low) / 2
+		change1D = ((c.PriceUSD / median) * 100) - 100
+	}
 	c.lock.Unlock()
 
-	return ""
+	return change1D
 }
 
-func (c *CoinData) GetChange7D() string {
+func (c *CoinData) GetChange7D() float64 {
+	change7D := 0.0
+
 	c.lock.Lock()
+	if c.HistoDay != nil && len(c.HistoDay) > 0 {
+		lastDay := c.HistoDay[0]
+		median := (lastDay.High + lastDay.Low) / 2
+		change7D = ((c.PriceUSD / median) * 100) - 100
+	}
 	c.lock.Unlock()
 
-	return ""
+	return change7D
 }

@@ -3,6 +3,8 @@ package runner
 import (
 	"log"
 
+	"github.com/tebben/moonfolio/ui"
+
 	"strconv"
 
 	"github.com/jroimartin/gocui"
@@ -27,6 +29,7 @@ func Start(c *configuration.Config, g *gocui.Gui) {
 	getCoinList()
 	createCoinData()
 	go startUpdater(int64(c.IntervalSeconds * 1000))
+	ui.ReDraw()
 }
 
 func getCoinList() {

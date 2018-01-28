@@ -3,7 +3,6 @@ package ui
 import (
 	"fmt"
 	"sort"
-	"strings"
 
 	"github.com/tebben/moonfolio/coindata"
 
@@ -40,7 +39,7 @@ func drawMainOverview(g *gocui.Gui) error {
 func createHeader() string {
 	textColor := ColorWhite
 	data := []columnText{
-		columnText{Length: 19, Text: "NAME", Styling: []string{textColor, BoldStart}},
+		columnText{Length: 25, Text: "NAME", Styling: []string{textColor, BoldStart}},
 		columnText{Length: 14, Text: "PRICE", Styling: []string{textColor, BoldStart}},
 		columnText{Length: 10, Text: fmt.Sprintf("1H%s", "%"), Styling: []string{textColor, BoldStart}},
 		columnText{Length: 10, Text: fmt.Sprintf("1D%s", "%"), Styling: []string{textColor, BoldStart}},
@@ -54,11 +53,11 @@ func createHeader() string {
 
 func createDataRow(h *coindata.CoinData) string {
 	data := []columnText{
-		columnText{Length: 19, Text: fmt.Sprintf("%s (%s)", h.Name, h.Symbol), Styling: []string{ColorGray, BoldStart}},
+		columnText{Length: 25, Text: fmt.Sprintf("%s", h.Name), Styling: []string{ColorGray, BoldStart}},
 		columnText{Length: 14, Text: fmt.Sprintf("%s%v", "$", h.PriceUSD), Styling: []string{ColorGray, BoldStart}},
-		columnText{Length: 10, Text: fmt.Sprintf("%s%s", h.GetChange1H(), "%"), Styling: []string{getChangeColorStyle(h.GetChange1H()), BoldStart}},
-		columnText{Length: 10, Text: fmt.Sprintf("%s%s", h.GetChange1D(), "%"), Styling: []string{getChangeColorStyle(h.GetChange1D()), BoldStart}},
-		columnText{Length: 10, Text: fmt.Sprintf("%s%s", h.GetChange7D(), "%"), Styling: []string{getChangeColorStyle(h.GetChange7D()), BoldStart}},
+		columnText{Length: 10, Text: fmt.Sprintf("%.2f%s", h.GetChange1H(), "%"), Styling: []string{getChangeColorStyle(h.GetChange1H()), BoldStart}},
+		columnText{Length: 10, Text: fmt.Sprintf("%.2f%s", h.GetChange1D(), "%"), Styling: []string{getChangeColorStyle(h.GetChange1D()), BoldStart}},
+		columnText{Length: 10, Text: fmt.Sprintf("%.2f%s", h.GetChange7D(), "%"), Styling: []string{getChangeColorStyle(h.GetChange7D()), BoldStart}},
 		columnText{Length: 13, Text: fmt.Sprintf("%v", h.GetCoinAmount()), Styling: []string{ColorGray, BoldStart}},
 		columnText{Length: 13, Text: fmt.Sprintf("%s%.2f", "$", h.GetBalance()), Styling: []string{ColorGray, BoldStart}},
 	}
@@ -76,9 +75,9 @@ func createMainOverview(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	return nil
 }
 
-func getChangeColorStyle(change string) string {
+func getChangeColorStyle(change float64) string {
 	s := ColorGreen
-	if strings.HasPrefix(change, "-") {
+	if change < 0 {
 		s = ColorRed
 	}
 
