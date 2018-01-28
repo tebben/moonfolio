@@ -25,7 +25,7 @@ func drawMainTop(g *gocui.Gui) error {
 
 	total := 0.0
 	for _, h := range holdings {
-		total = total + h.HoldingsBalance
+		total = total + h.GetBalance()
 	}
 
 	fmt.Fprintf(v, fmt.Sprintf("total: $%.2f", total))

@@ -2,7 +2,6 @@ package cryptocompare
 
 import (
 	"fmt"
-	"log"
 	"strings"
 )
 
@@ -12,9 +11,6 @@ func buildURI(endpoint string, parameters ...Parameter) string {
 	for _, p := range parameters {
 		uri = appendParameter(uri, p)
 	}
-
-	// debug request uri
-	log.Printf("%s", uri)
 
 	return uri
 }

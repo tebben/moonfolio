@@ -22,7 +22,7 @@ func ReDraw() {
 	})
 }
 
-// SetHoldings sets the current holding data based on transactions and CMC tickers
+// SetHoldings sets the current holding data based on transactions and cryptocompare tickers
 func SetHoldings(h Holdings, err error) {
 	if h != nil {
 		holdings = h

@@ -1,6 +1,10 @@
 package ui
 
-type Holdings []HoldingsData
+import (
+	"github.com/tebben/moonfolio/coindata"
+)
+
+type Holdings []*coindata.CoinData
 
 // Len is part of sort.Interface.
 func (d Holdings) Len() int {
@@ -14,20 +18,5 @@ func (d Holdings) Swap(i, j int) {
 
 // Less is part of sort.Interface. We use count as the value to sort by
 func (d Holdings) Less(i, j int) bool {
-	return d[i].HoldingsBalance > d[j].HoldingsBalance
-}
-
-type HoldingsData struct {
-	CoinName                 string
-	CoinSymbol               string
-	CoinRank                 int
-	CoinPrice                float64
-	CoinChangePercentageHour string
-	CoinChangePercentageDay  string
-	CoinChangePercentageWeek string
-
-	HoldingsSymbol  string
-	HoldingsAmount  float64
-	HoldingsBalance float64
-	HoldingsCost    float64
+	return d[i].GetBalance() > d[j].GetBalance()
 }

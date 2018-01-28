@@ -1,8 +1,12 @@
 package runner
 
 import (
+	"log"
 	"time"
 
+	"github.com/tebben/moonfolio/coindata"
+
+	"github.com/tebben/moonfolio/cryptocompare"
 	"github.com/tebben/moonfolio/ui"
 )
 
@@ -12,13 +16,19 @@ var (
 )
 
 func startUpdater(updateMs int64) {
-	updateTicker = time.NewTicker(time.Millisecond * time.Duration(updateMs))
+	// start with an update
+	runUpdate(updateMs)
 
+	updateTicker = time.NewTicker(time.Millisecond * time.Duration(updateMs))
 	for range updateTicker.C {
-		update()
-		stopUpdateTimerCountDown()
-		startUpdateTimerCountDown(updateMs)
+		runUpdate(updateMs)
 	}
+}
+
+func runUpdate(updateMs int64) {
+	go update()
+	stopCountdownTicker()
+	go startCountdownTicker(updateMs)
 }
 
 func stopUpdater() {
@@ -27,7 +37,7 @@ func stopUpdater() {
 	}
 }
 
-func startUpdateTimerCountDown(toNextUpdate int64) {
+func startCountdownTicker(toNextUpdate int64) {
 	start := int64(time.Now().UnixNano() / int64(time.Millisecond))
 	countdownTicker = time.NewTicker(time.Millisecond * time.Duration(200))
 
@@ -39,8 +49,50 @@ func startUpdateTimerCountDown(toNextUpdate int64) {
 	}
 }
 
-func stopUpdateTimerCountDown() {
+func stopCountdownTicker() {
 	if countdownTicker != nil {
 		countdownTicker.Stop()
 	}
 }
+
+func update() {
+	updatePrice()
+	updateHisto()
+
+	// set data to ui
+	holdings := make(ui.Holdings, 0)
+	for k := range userCoins {
+		copy := &coindata.CoinData{}
+		*copy = *userCoins[k]
+		holdings = append(holdings, copy)
+	}
+
+	ui.SetHoldings(holdings, nil)
+}
+
+func updatePrice() {
+	fsyms := make([]string, 0)
+	for _, c := range userCoins {
+		fsyms = append(fsyms, c.Symbol)
+	}
+
+	multi, err := cryptocompare.GetPriceMulti(fsyms, []string{"USD"}, "", "", false, false)
+	if err != nil {
+		//ToDo: set error, remove fatal
+		log.Fatalf("Error getting price multi: %v", err)
+	}
+
+	// set the price for a user coin from retrieved price data
+	for _, c := range userCoins {
+		if p, ok := multi[c.Symbol]; ok {
+			c.SetPriceUSD(p["USD"])
+		}
+	}
+}
+
+func updateHisto() {
+
+}
+
+// Every 00:00 gmt get price histo day to set 1 day and 7 d
+// every

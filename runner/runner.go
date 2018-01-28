@@ -23,13 +23,16 @@ var (
 func Start(c *configuration.Config, g *gocui.Gui) {
 	config = c
 	gui = g
+
 	getCoinList()
 	createCoinData()
+	go startUpdater(int64(c.IntervalSeconds * 1000))
 }
 
 func getCoinList() {
 	c, err := cryptocompare.GetCoinList()
 	if err != nil {
+		log.Fatal("Error getting coin list")
 		// ToDo set error in interface
 	}
 
@@ -45,7 +48,8 @@ func createCoinData() {
 	userCoins = make(map[string]*coindata.CoinData, 0)
 
 	// add transaction to a user coin, create user coin if there is no coin yet
-	for _, t := range ta {
+	for i := range ta {
+		t := ta[i]
 		if uc, ok := userCoins[t.CoinID]; !ok {
 			uc = &coindata.CoinData{}
 
@@ -63,38 +67,9 @@ func createCoinData() {
 			uc.AddTransaction(t)
 			userCoins[uc.Symbol] = uc
 		} else {
-			uc.AddTransaction(t)
+			userCoins[t.CoinID].AddTransaction(t)
 		}
 	}
-}
-
-func update() {
-	updatePrice()
-	updateHisto()
-	// set data to ui
-}
-
-func updatePrice() {
-	fsyms := make([]string, 0)
-	for _, c := range userCoins {
-		fsyms = append(fsyms, c.Symbol)
-	}
-
-	multi, err := cryptocompare.GetPriceMulti(fsyms, []string{"USD"}, "", "", false, false)
-	if err != nil {
-		//ToDo: set error
-	}
-
-	// set the price for a user coin from retrieved price data
-	for _, c := range userCoins {
-		if p, ok := multi[c.Symbol]; ok {
-			c.SetPriceUSD(p["USD"])
-		}
-	}
-}
-
-func updateHisto() {
-
 }
 
 // set error in GUI
