@@ -11,10 +11,11 @@ import (
 )
 
 var (
-	updateTicker        *time.Ticker
-	countdownTicker     *time.Ticker
-	lastHistoDayUpdate  *time.Time
-	lastHistoHourUpdate *time.Time
+	updateTicker          *time.Ticker
+	countdownTicker       *time.Ticker
+	lastHistoDayUpdate    *time.Time
+	lastHistoMinuteUpdate *time.Time
+	fetchHistoMinuteDone  bool
 )
 
 func startUpdater(updateMs int64) {
@@ -59,10 +60,13 @@ func stopCountdownTicker() {
 
 func update() {
 	updatePrice()
-	go updateHistoDay()
-	go updateHistoHour()
-
+	go updateHisto()
 	updateUIHoldings()
+}
+
+func updateHisto() {
+	updateHistoDay()
+	updateHistoMinute()
 }
 
 func updateUIHoldings() {
@@ -91,8 +95,19 @@ func updatePrice() {
 
 	// set the price for a user coin from retrieved price data
 	for _, c := range userCoins {
+		nowMS := int64(time.Now().UnixNano() / int64(time.Millisecond))
+
 		if p, ok := multi[c.Symbol]; ok {
-			c.SetPriceUSD(p["USD"])
+			priceUSD := p["USD"]
+			c.SetPriceUSD(priceUSD)
+
+			if fetchHistoMinuteDone {
+				histo := &coindata.Histo{
+					Time:     nowMS,
+					PriceUSD: priceUSD,
+				}
+				c.AddHistoMinute(histo)
+			}
 		}
 	}
 }
@@ -100,35 +115,37 @@ func updatePrice() {
 func updateHistoDay() {
 	now := time.Now()
 	if lastHistoDayUpdate == nil || (lastHistoDayUpdate.Year() < now.Year() || lastHistoDayUpdate.Month() < now.Month() || lastHistoDayUpdate.Day() < now.Day()) {
+		lastHistoDayUpdate = &now
+
 		for k := range userCoins {
 			histoDay, err := cryptocompare.GetHistoDay(cryptocompare.ParamFsym(userCoins[k].Symbol), "USD", "", "", false, false, 1, 7)
 			if err != nil {
 				// Todo: set error
 			}
 
-			userCoins[k].HistoDay = histoDay.Data
+			userCoins[k].SetHistoDay(histoDay.Data)
 			go updateUIHoldings()
-			time.Sleep(time.Millisecond * 500)
+			time.Sleep(time.Millisecond * 1000)
 		}
-
-		lastHistoDayUpdate = &now
 	}
 }
 
-func updateHistoHour() {
+func updateHistoMinute() {
 	now := time.Now()
-	if lastHistoHourUpdate == nil {
+	if lastHistoMinuteUpdate == nil {
+		lastHistoMinuteUpdate = &now
+
 		for k := range userCoins {
-			histoHour, err := cryptocompare.GetHistoHour(cryptocompare.ParamFsym(userCoins[k].Symbol), "USD", "", "", false, false, 1, 1)
+			histoMinute, err := cryptocompare.GetHistoMinute(cryptocompare.ParamFsym(userCoins[k].Symbol), "USD", "", "", false, false, 1, 60)
 			if err != nil {
 				// Todo: set error
 			}
 
-			userCoins[k].HistoHour = histoHour.Data
+			userCoins[k].SetHistoMinute(histoMinute.Data)
 			go updateUIHoldings()
-			time.Sleep(time.Millisecond * 500)
+			time.Sleep(time.Millisecond * 1000)
 		}
 
-		lastHistoHourUpdate = &now
+		fetchHistoMinuteDone = true
 	}
 }

@@ -23,7 +23,7 @@ func mockTransactions() []*Transaction {
 	t14 := &Transaction{ID: 13, Type: TransactionBuy, CoinID: "ENJ", CoinAmount: 450, DateTime: 1515940982305, PriceUSD: 0}
 	t15 := &Transaction{ID: 14, Type: TransactionBuy, CoinID: "BAT", CoinAmount: 185, DateTime: 1515940982305, PriceUSD: 0}
 	t16 := &Transaction{ID: 15, Type: TransactionBuy, CoinID: "QASH", CoinAmount: 56.14, DateTime: 1515940982305, PriceUSD: 0}
-	t17 := &Transaction{ID: 16, Type: TransactionBuy, CoinID: "ETHOS", CoinAmount: 15, DateTime: 1515940982305, PriceUSD: 0}
+	t17 := &Transaction{ID: 16, Type: TransactionBuy, CoinID: "BQX", CoinAmount: 15, DateTime: 1515940982305, PriceUSD: 0}
 	t18 := &Transaction{ID: 17, Type: TransactionBuy, CoinID: "LUX", CoinAmount: 1, DateTime: 1515940982305, PriceUSD: 0}
 
 	return []*Transaction{
