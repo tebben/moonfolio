@@ -5,6 +5,7 @@ import (
 
 	"strconv"
 
+	"github.com/jroimartin/gocui"
 	"github.com/tebben/moonfolio/coindata"
 	"github.com/tebben/moonfolio/configuration"
 	"github.com/tebben/moonfolio/cryptocompare"
@@ -15,11 +16,13 @@ var (
 	allCoins  *cryptocompare.CoinList
 	userCoins map[string]*coindata.CoinData
 	config    *configuration.Config
+	gui       *gocui.Gui
 )
 
 // Start starts the runner
-func Start(c *configuration.Config) {
+func Start(c *configuration.Config, g *gocui.Gui) {
 	config = c
+	gui = g
 	getCoinList()
 	createCoinData()
 }
@@ -65,7 +68,32 @@ func createCoinData() {
 	}
 }
 
-func update(price, histoHour, histoDay bool) {
+func update() {
+	updatePrice()
+	updateHisto()
+	// set data to ui
+}
+
+func updatePrice() {
+	fsyms := make([]string, 0)
+	for _, c := range userCoins {
+		fsyms = append(fsyms, c.Symbol)
+	}
+
+	multi, err := cryptocompare.GetPriceMulti(fsyms, []string{"USD"}, "", "", false, false)
+	if err != nil {
+		//ToDo: set error
+	}
+
+	// set the price for a user coin from retrieved price data
+	for _, c := range userCoins {
+		if p, ok := multi[c.Symbol]; ok {
+			c.SetPriceUSD(p["USD"])
+		}
+	}
+}
+
+func updateHisto() {
 
 }
 

@@ -28,15 +28,14 @@ var transactions = map[string]float64{
 }
 
 var (
-	updateTicker *time.Ticker
 	conf         configuration.Config
 	cfgFlag      = flag.String("config", "config.json", "path of the config file")
+	gui          *gocui.Gui
 )
 
 func main() {
 	flag.Parse()
 	loadConfig()
-	go runner.Start(&conf)
 	createAndStart()
 }
 
@@ -66,13 +65,16 @@ func createAndStart() {
 		log.Panicln(err)
 	}
 
-	go startCMCTicker()
+	go runner.Start(&conf, gui)
+
+	//go startCMCTicker()
 
 	if err := gui.MainLoop(); err != nil && err != gocui.ErrQuit {
 		log.Panicln(err)
 	}
 }
 
+/*
 func startCMCTicker() {
 	time.Sleep(time.Duration(time.Millisecond * 2000))
 	cmcTickersChannel, err := cmc.GetTickersWithUpdates(0, cmc.FiatUSD, 0, 0)
@@ -132,4 +134,4 @@ func stopUpdateTimerCountDown() {
 	if updateTicker != nil {
 		updateTicker.Stop()
 	}
-}
+}*/
