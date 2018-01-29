@@ -2,6 +2,7 @@ package ui
 
 import (
 	"github.com/jroimartin/gocui"
+	"github.com/tebben/moonfolio/configuration"
 )
 
 var (
@@ -9,6 +10,7 @@ var (
 	timeToNextUpdate int64
 	cmcError         error
 	gui              *gocui.Gui
+	Config           configuration.GuiConfig
 )
 
 // ReDraw the entire layout

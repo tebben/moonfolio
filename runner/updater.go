@@ -65,8 +65,13 @@ func update() {
 }
 
 func updateHisto() {
-	updateHistoDay()
-	updateHistoMinute()
+	if config.GUI.ShowDayPercentage || config.GUI.ShowWeekPercentage {
+		updateHistoDay()
+	}
+
+	if config.GUI.ShowHourPercentage {
+		updateHistoMinute()
+	}
 }
 
 func updateUIHoldings() {
@@ -101,12 +106,14 @@ func updatePrice() {
 			priceUSD := p["USD"]
 			c.SetPriceUSD(priceUSD)
 
-			if fetchHistoMinuteDone {
-				histo := &coindata.Histo{
-					Time:     nowMS,
-					PriceUSD: priceUSD,
+			if fetchHistoMinuteDone && config.GUI.ShowHourPercentage {
+				{
+					histo := &coindata.Histo{
+						Time:     nowMS,
+						PriceUSD: priceUSD,
+					}
+					c.AddHistoMinute(histo)
 				}
-				c.AddHistoMinute(histo)
 			}
 		}
 	}

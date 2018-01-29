@@ -1,5 +1,5 @@
 {
-    "intervalSeconds": 15,
+    "intervalSeconds": 30,
     "transactionsPath": "",
     "http": {
         "enabled": false,

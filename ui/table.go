@@ -5,10 +5,35 @@ import (
 	"unicode/utf8"
 )
 
+type columnDefinition struct {
+	Header        string
+	Size          int
+	Enabled       bool
+	StylingHeader func() []string
+	StylingBody   func(interface{}) []string
+}
+
 type columnText struct {
 	Text    string
 	Styling []string
 	Length  int
+}
+
+func getRowHeaderStyling() []string {
+	return []string{ColorWhite, BoldStart}
+}
+
+func getRowColumnDefaultStyling(input interface{}) []string {
+	return []string{ColorGray, BoldStart}
+}
+
+func getRowChangeStyling(input interface{}) []string {
+	switch i := input.(type) {
+	case float64:
+		return []string{getChangeColorStyle(i), BoldStart}
+	default:
+		return []string{}
+	}
 }
 
 func createColumnString(columns []columnText) string {

@@ -10,11 +10,32 @@ import (
 	"github.com/jroimartin/gocui"
 )
 
+const (
+	columnName int = iota
+	columnPrice
+	columnChange1H
+	columnChange1D
+	columnChange7D
+	columnAmount
+	columnBalance
+)
+
 var (
 	viewOverviewName = "mainOverview"
+	columns          = map[int]columnDefinition{
+		columnName:     columnDefinition{Header: "NAME", Size: 25, StylingHeader: getRowHeaderStyling, StylingBody: getRowColumnDefaultStyling, Enabled: true},
+		columnPrice:    columnDefinition{Header: "PRICE", Size: 14, StylingHeader: getRowHeaderStyling, StylingBody: getRowColumnDefaultStyling, Enabled: true},
+		columnChange1H: columnDefinition{Header: fmt.Sprintf("1H %s", "%"), Size: 10, StylingHeader: getRowHeaderStyling, StylingBody: getRowChangeStyling, Enabled: true},
+		columnChange1D: columnDefinition{Header: fmt.Sprintf("1D %s", "%"), Size: 10, StylingHeader: getRowHeaderStyling, StylingBody: getRowChangeStyling, Enabled: true},
+		columnChange7D: columnDefinition{Header: fmt.Sprintf("7D %s", "%"), Size: 10, StylingHeader: getRowHeaderStyling, StylingBody: getRowChangeStyling, Enabled: true},
+		columnAmount:   columnDefinition{Header: "AMOUNT", Size: 13, StylingHeader: getRowHeaderStyling, StylingBody: getRowColumnDefaultStyling, Enabled: true},
+		columnBalance:  columnDefinition{Header: "BALANCE", Size: 13, StylingHeader: getRowHeaderStyling, StylingBody: getRowColumnDefaultStyling, Enabled: true},
+	}
 )
 
 func drawMainOverview(g *gocui.Gui) error {
+	setEnabledColumns()
+
 	v, err := g.View(viewOverviewName)
 	if err != nil {
 		return err
@@ -37,31 +58,57 @@ func drawMainOverview(g *gocui.Gui) error {
 	return nil
 }
 
+func setEnabledColumns() {
+	hour := columns[columnChange1H]
+	hour.Enabled = Config.ShowHourPercentage
+
+	day := columns[columnChange1D]
+	day.Enabled = Config.ShowDayPercentage
+
+	week := columns[columnChange7D]
+	week.Enabled = Config.ShowWeekPercentage
+}
+
 func createHeader() string {
-	textColor := ColorWhite
-	data := []columnText{
-		columnText{Length: 25, Text: "NAME", Styling: []string{textColor, BoldStart}},
-		columnText{Length: 14, Text: "PRICE", Styling: []string{textColor, BoldStart}},
-		columnText{Length: 10, Text: fmt.Sprintf("1H %s", "%"), Styling: []string{textColor, BoldStart}},
-		columnText{Length: 10, Text: fmt.Sprintf("1D %s", "%"), Styling: []string{textColor, BoldStart}},
-		columnText{Length: 10, Text: fmt.Sprintf("7D %s", "%"), Styling: []string{textColor, BoldStart}},
-		columnText{Length: 13, Text: "AMOUNT", Styling: []string{textColor, BoldStart}},
-		columnText{Length: 13, Text: "BALANCE", Styling: []string{textColor, BoldStart}},
+	data := []columnText{}
+
+	var keys []int
+	for k := range columns {
+		keys = append(keys, k)
+	}
+	sort.Ints(keys)
+
+	for _, k := range keys {
+		r := columns[k]
+		if !r.Enabled {
+			continue
+		}
+
+		data = append(data, columnText{Length: r.Size, Text: r.Header, Styling: r.StylingHeader()})
 	}
 
 	return createColumnString(data)
 }
 
 func createDataRow(h *coindata.CoinData) string {
-	data := []columnText{
-		columnText{Length: 25, Text: fmt.Sprintf("%s", h.Name), Styling: []string{ColorGray, BoldStart}},
-		columnText{Length: 14, Text: fmt.Sprintf("%s%v", "$", h.PriceUSD), Styling: []string{ColorGray, BoldStart}},
-		columnText{Length: 10, Text: fmt.Sprintf("%s", getChange(h.GetChange1H)), Styling: []string{getChangeColorStyle(h.GetChange1H()), BoldStart}},
-		columnText{Length: 10, Text: fmt.Sprintf("%s", getChange(h.GetChange1D)), Styling: []string{getChangeColorStyle(h.GetChange1D()), BoldStart}},
-		columnText{Length: 10, Text: fmt.Sprintf("%s", getChange(h.GetChange7D)), Styling: []string{getChangeColorStyle(h.GetChange7D()), BoldStart}},
-		columnText{Length: 13, Text: fmt.Sprintf("%v", floatToString(h.GetCoinAmount())), Styling: []string{ColorGray, BoldStart}},
-		columnText{Length: 13, Text: fmt.Sprintf("%s%.2f", "$", h.GetBalance()), Styling: []string{ColorGray, BoldStart}},
+	data := []columnText{}
+	data = append(data, columnText{Length: columns[columnName].Size, Text: h.Name, Styling: columns[columnName].StylingBody(nil)})
+	data = append(data, columnText{Length: columns[columnPrice].Size, Text: fmt.Sprintf("%s%v", "$", h.PriceUSD), Styling: columns[columnPrice].StylingBody(nil)})
+
+	if columns[columnChange1H].Enabled {
+		data = append(data, columnText{Length: columns[columnChange1H].Size, Text: fmt.Sprintf("%s", getChange(h.GetChange1H)), Styling: columns[columnChange1H].StylingBody(h.GetChange1H())})
 	}
+
+	if columns[columnChange1D].Enabled {
+		data = append(data, columnText{Length: columns[columnChange1D].Size, Text: fmt.Sprintf("%s", getChange(h.GetChange1D)), Styling: columns[columnChange1D].StylingBody(h.GetChange1D())})
+	}
+
+	if columns[columnChange7D].Enabled {
+		data = append(data, columnText{Length: columns[columnChange7D].Size, Text: fmt.Sprintf("%s", getChange(h.GetChange7D)), Styling: columns[columnChange7D].StylingBody(h.GetChange7D())})
+	}
+
+	data = append(data, columnText{Length: columns[columnAmount].Size, Text: fmt.Sprintf("%v", floatToString(h.GetCoinAmount())), Styling: columns[columnAmount].StylingBody(nil)})
+	data = append(data, columnText{Length: columns[columnBalance].Size, Text: fmt.Sprintf("%s%.2f", "$", h.GetBalance()), Styling: columns[columnBalance].StylingBody(nil)})
 
 	return createColumnString(data)
 }

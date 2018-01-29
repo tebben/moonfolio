@@ -41,6 +41,7 @@ func createAndStart() {
 	}
 	defer gui.Close()
 
+	ui.Config = conf.GUI
 	gui.SetManagerFunc(ui.MainLayout)
 
 	if err := gui.SetKeybinding("", gocui.KeyCtrlC, gocui.ModNone, ui.Quit); err != nil {
