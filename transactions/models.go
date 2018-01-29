@@ -11,7 +11,7 @@ const (
 
 // Transaction describes a but or sell transaction
 type Transaction struct {
-	ID         int32           `json:"id"`
+	ID         int             `json:"id"`
 	Type       TransactionType `json:"type"`
 	CoinID     string          `json:"coinId"`
 	CoinAmount float64         `json:"coinAmount"`
