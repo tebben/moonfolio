@@ -17,4 +17,13 @@ type Transaction struct {
 	CoinAmount float64         `json:"coinAmount"`
 	DateTime   int64           `json:"dateTime"`
 	PriceUSD   float64         `json:"priceUsd"`
+	Hide       bool            `json:"hide"`
+}
+
+// IStore defines the operations a store must implement
+type IStore interface {
+	GetTransactions() ([]*Transaction, error)
+	AddTransaction(t *Transaction) error
+	UpdateTransaction(t *Transaction) error
+	DeleteTransaction(t *Transaction) error
 }

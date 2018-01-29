@@ -2,10 +2,6 @@ package transactions
 
 //ToDo: Channels for sending created, deleted, editted transactions
 
-func GetTransactions() ([]*Transaction, error) {
-	return mockTransactions(), nil
-}
-
 func mockTransactions() []*Transaction {
 	t1 := &Transaction{ID: 0, Type: TransactionBuy, CoinID: "BTC", CoinAmount: 0.084, DateTime: 1515940982305, PriceUSD: 243.93}
 	t2 := &Transaction{ID: 1, Type: TransactionBuy, CoinID: "VSX", CoinAmount: 11071, DateTime: 1515940982305, PriceUSD: 0}

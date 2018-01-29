@@ -6,7 +6,7 @@ var CurrentConfig Config
 // Config contains the application config parameters
 type Config struct {
 	IntervalSeconds  int                   `json:"intervalSeconds"`
-	TransactionsPath string                `json:"transactionsPath"`
+	TransactionsFile string                `json:"transactionsFile"`
 	HTTP             TransactionHTTPConfig `json:"http"`
 	GUI              GuiConfig             `json:"gui"`
 }

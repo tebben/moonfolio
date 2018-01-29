@@ -15,6 +15,7 @@ import (
 )
 
 var (
+	store     transactions.IStore
 	allCoins  *cryptocompare.CoinList
 	userCoins map[string]*coindata.CoinData
 	config    *configuration.Config
@@ -26,10 +27,19 @@ func Start(c *configuration.Config, g *gocui.Gui) {
 	config = c
 	gui = g
 
+	createStore()
 	getCoinList()
 	createCoinData()
 	go startUpdater(int64(c.IntervalSeconds * 1000))
 	ui.ReDraw()
+}
+
+func createStore() {
+	var err error
+	store, err = transactions.NewBoltStore(config.TransactionsFile)
+	if err != nil {
+		log.Fatalf("Unable to open or create transaction store: %v", err)
+	}
 }
 
 func getCoinList() {
@@ -43,7 +53,7 @@ func getCoinList() {
 }
 
 func createCoinData() {
-	ta, err := transactions.GetTransactions()
+	ta, err := store.GetTransactions()
 	if err != nil {
 		log.Fatalf("unable to get transactions: %v", err)
 	}

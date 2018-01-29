@@ -1,6 +1,6 @@
 {
     "intervalSeconds": 30,
-    "transactionsPath": "",
+    "transactionsFile": "",
     "http": {
         "enabled": false,
         "host": "0.0.0.0",
