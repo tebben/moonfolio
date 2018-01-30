@@ -22,6 +22,8 @@ type Transaction struct {
 
 // IStore defines the operations a store must implement
 type IStore interface {
+	Start() error
+	Stop()
 	GetTransactions() ([]*Transaction, error)
 	AddTransaction(t *Transaction) error
 	UpdateTransaction(t *Transaction) error

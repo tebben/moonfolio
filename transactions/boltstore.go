@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
+	"os"
 	"path/filepath"
 
 	"github.com/boltdb/bolt"
@@ -20,7 +21,7 @@ func NewBoltStore(path string) (*BoltStore, error) {
 		DatabaseFile: path,
 	}
 
-	err := store.CreateOrTryLoadDatabase()
+	err := store.Start()
 	if err != nil {
 		return nil, err
 	}
@@ -31,10 +32,11 @@ func NewBoltStore(path string) (*BoltStore, error) {
 // BoltStore implements the IStore and uses BoltDB for storage of transactions
 type BoltStore struct {
 	DatabaseFile string
+	db           *bolt.DB
 }
 
-// CreateOrTryLoadDatabase loads the database of exist if not it will create a database
-func (s *BoltStore) CreateOrTryLoadDatabase() error {
+// Start loads the database of exist if not it will create a database
+func (s *BoltStore) Start() error {
 	if len(s.DatabaseFile) == 0 {
 		s.DatabaseFile = defaultDatabase
 	}
@@ -44,19 +46,23 @@ func (s *BoltStore) CreateOrTryLoadDatabase() error {
 		return fmt.Errorf("invalid database file: %v", s.DatabaseFile)
 	}
 
-	db, err := bolt.Open(s.DatabaseFile, 0600, nil)
-	defer db.Close()
+	var err error
+
+	// Create the store directory if doesnt exist
+	storeDir := filepath.Dir(s.DatabaseFile)
+	if _, err = os.Stat(storeDir); os.IsNotExist(err) {
+		err = os.MkdirAll(storeDir, 0755)
+		if err != nil {
+			return err
+		}
+	}
+
+	s.db, err = bolt.Open(s.DatabaseFile, 0600, nil)
 	if err != nil {
 		return err
 	}
 
-	err = db.Update(func(tx *bolt.Tx) error {
-		_, err := tx.CreateBucketIfNotExists([]byte(bucketTransactions))
-		if err != nil {
-			return fmt.Errorf("create bucket: %s", err)
-		}
-		return nil
-	})
+	err = s.createTransactionBucketIfNotExists()
 	if err != nil {
 		return err
 	}
@@ -64,14 +70,26 @@ func (s *BoltStore) CreateOrTryLoadDatabase() error {
 	return nil
 }
 
+// Stop stops the database
+func (s *BoltStore) Stop() {
+	s.db.Close()
+}
+
+func (s *BoltStore) createTransactionBucketIfNotExists() error {
+	return s.db.Update(func(tx *bolt.Tx) error {
+		_, err := tx.CreateBucketIfNotExists([]byte(bucketTransactions))
+		if err != nil {
+			return fmt.Errorf("create bucket: %s", err)
+		}
+		return nil
+	})
+}
+
 // GetTransactions returns all transactions from the bolt database
 func (s *BoltStore) GetTransactions() ([]*Transaction, error) {
 	/*transactions := make([]*Transaction, 0)
 
-	db, _ := bolt.Open(s.DatabaseFile, 0600, &bolt.Options{ReadOnly: true})
-	defer db.Close()
-
-	err := db.View(func(tx *bolt.Tx) error {
+	err := s.db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(bucketTransactions))
 		b.ForEach(func(k, v []byte) error {
 			transaction := &Transaction{}
@@ -91,15 +109,12 @@ func (s *BoltStore) GetTransactions() ([]*Transaction, error) {
 
 	return transactions, nil*/
 
-	//return mockTransactions(), nil
+	return mockTransactions(), nil
 }
 
 // AddTransaction adds a transaction to the bolt database
 func (s *BoltStore) AddTransaction(t *Transaction) error {
-	db, _ := bolt.Open(s.DatabaseFile, 0600, nil)
-	defer db.Close()
-
-	return db.Update(func(tx *bolt.Tx) error {
+	return s.db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(bucketTransactions))
 		id, _ := b.NextSequence()
 		t.ID = int(id)

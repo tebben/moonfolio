@@ -13,8 +13,12 @@
 # Project-local glide cache, RE: https://github.com/Masterminds/glide/issues/736
 .glide/
 
+# debug files creates by VSCode
 debug
 
-#default database
+# Created databases
 transactions.moon
 test.moon
+
+# Bin directory
+files/bin
