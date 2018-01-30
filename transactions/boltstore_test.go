@@ -60,7 +60,7 @@ func TestGetTransactions(t *testing.T) {
 
 	err = store.AddTransaction(createTestTransaction())
 	err = store.AddTransaction(createTestTransaction2())
-	transactions, err := store.GetTransactions()
+	transactions, err := store.GetTransactionsTemp()
 
 	assert.NoError(t, err)
 	assert.Len(t, transactions, 2)

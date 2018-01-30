@@ -112,6 +112,31 @@ func (s *BoltStore) GetTransactions() ([]*Transaction, error) {
 	return mockTransactions(), nil
 }
 
+// GetTransactionsTemp will replace GetTransactions when bolt implementation is done
+func (s *BoltStore) GetTransactionsTemp() ([]*Transaction, error) {
+	transactions := make([]*Transaction, 0)
+
+	err := s.db.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(bucketTransactions))
+		b.ForEach(func(k, v []byte) error {
+			transaction := &Transaction{}
+			if err := json.Unmarshal(v, transaction); err != nil {
+				return err
+			}
+
+			transactions = append(transactions, transaction)
+			return nil
+		})
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return transactions, nil
+}
+
 // AddTransaction adds a transaction to the bolt database
 func (s *BoltStore) AddTransaction(t *Transaction) error {
 	return s.db.Update(func(tx *bolt.Tx) error {
