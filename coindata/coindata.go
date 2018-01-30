@@ -10,6 +10,7 @@ import (
 )
 
 const (
+	// Empty contains a number which can be used to check if something was not set
 	Empty = -99999.99999
 )
 
@@ -151,6 +152,7 @@ func (c *CoinData) GetBalance() float64 {
 	return coinAmount * c.PriceUSD
 }
 
+// GetChange1H returns the percentage change in re lation to 1 hour ago
 func (c *CoinData) GetChange1H() float64 {
 	change1H := Empty
 
@@ -181,6 +183,7 @@ func (c *CoinData) GetChange1H() float64 {
 	return change1H
 }
 
+// GetChange1D returns the percentage change between now and 1 day ago
 func (c *CoinData) GetChange1D() float64 {
 	change1D := Empty
 
@@ -194,6 +197,7 @@ func (c *CoinData) GetChange1D() float64 {
 	return change1D
 }
 
+// GetChange7D returns the percentage change between now and 7 days ago
 func (c *CoinData) GetChange7D() float64 {
 	change7D := Empty
 

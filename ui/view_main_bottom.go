@@ -24,11 +24,6 @@ func drawMainBottom(g *gocui.Gui) error {
 	} else {
 		seconds := timeToNextUpdate / 1000
 		dt := time.Unix(seconds, 0)
-		minute := fmt.Sprintf("%v", dt.Minute())
-		if len(minute) < 2 {
-			minute = fmt.Sprintf("0%s", minute)
-		}
-
 		timeString := fmt.Sprintf("%v:%v", toTimePartString(dt.Minute()), toTimePartString(dt.Second()))
 		fmt.Fprintf(v, " %supdate %v", ColorWhite, timeString)
 	}

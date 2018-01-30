@@ -10,7 +10,9 @@ var (
 	timeToNextUpdate int64
 	cmcError         error
 	gui              *gocui.Gui
-	Config           configuration.GuiConfig
+
+	// Config contains user set configuration parameters
+	Config configuration.GuiConfig
 )
 
 // ReDraw the entire layout

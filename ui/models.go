@@ -4,6 +4,7 @@ import (
 	"github.com/tebben/moonfolio/coindata"
 )
 
+// Holdings is a slice of *coindata.CoinData which implements sort to sort by highest balance
 type Holdings []*coindata.CoinData
 
 // Len is part of sort.Interface.

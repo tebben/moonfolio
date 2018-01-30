@@ -72,7 +72,7 @@ func createCoinData() {
 				uc.SetSymbol(ccCoin.Symbol)
 				rank, _ := strconv.Atoi(ccCoin.SortOrder)
 				uc.SetRank(rank)
-			} else { // coins from cryptocompare did not find the coin refered in the transaction
+			} else { // coins from cryptocompare did not find the coin referred in the transaction
 				uc.SetName(t.CoinID)
 				uc.SetSymbol(t.CoinID)
 			}
