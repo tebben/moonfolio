@@ -1,0 +1,21 @@
+language: go
+
+go:
+  - 1.9.x
+
+before_install:
+  - go get github.com/tebben/overalls
+  - go get github.com/mattn/goveralls
+  - go get golang.org/x/tools/cmd/cover
+
+script:
+  - go test ./...
+  - overalls -project=github.com/tebben/moonfolio -covermode=count -ignore=".git" -debug true
+  - goveralls -coverprofile=/home/travis/gopath/src/github.com/gost/server/overalls.coverprofile -service=travis-ci -repotoken $COVERALLS_TOKEN
+
+notifications:
+  email:
+    recipients:
+      - tim.ebben@geodan.nl
+    on_success: change
+    on_failure: always
